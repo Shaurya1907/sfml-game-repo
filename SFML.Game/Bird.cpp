@@ -15,67 +15,51 @@ void Bird::Load()
         return;
     }
 
-    sprite.setScale(1.5, 1.5f);
-    sprite.setPosition(200.f, 300.f);
+    sprite.setScale(1.4, 1.4f);
+    sprite.setPosition(225.f, 330.f);
+}
+
+void Bird::Flap()
+{
+    velocityY = flapStrength; // Jump up
+    targetRotation = -20.f;   // Tilt upward
+    BirdAngleRotationClock.restart(); // Restart rotation delay
 }
 
 // Inside game loop
 void Bird::Update()
 {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    {
-        velocityY = flapStrength;
-
-        // Only trigger once per flap
-        if (!justFlapped)
-        {
-            targetRotation = -20.f; // Tilt upward
-            BirdAngleRotationClock.restart(); // Start timer
-            justFlapped = true;
-        }
-    }
-    else
-    {
-        justFlapped = false; // Allow next flap
-    }
-
-    // If waiting period is over, set target to downward tilt
+    // If waiting period is over, tilt downward
     if (BirdAngleRotationClock.getElapsedTime().asSeconds() >= WaitBeforeRotation)
     {
         targetRotation = 90.f; // Tilt downward
     }
 
-    // Smoothly move birdRotation toward targetRotation
-    birdRotation += (targetRotation - birdRotation) * 0.001f; // Adjust 0.1f for speed
+    // Smoothly rotate bird towards target rotation
+    birdRotation += (targetRotation - birdRotation) * rotationSpeed;
     sprite.setRotation(birdRotation);
-
 
     // Apply gravity
     velocityY += gravity;
     sprite.move(velocityX, velocityY);
 
-    // Simple ground collision
-    if (sprite.getPosition().y + sprite.getGlobalBounds().height >= 600)
-    {
-        sprite.setPosition(sprite.getPosition().x, 600 - sprite.getGlobalBounds().height);
-        velocityY = 0;
-    }
-
+  
+    // Ceiling collision
     if (sprite.getPosition().y <= 0)
     {
         sprite.setPosition(sprite.getPosition().x, 0);
         velocityY = 0;
     }
 
-    //Animation of bird 
+    // Animate bird
     if (animationClock.getElapsedTime().asSeconds() > animationSpeed)
     {
-        currentFrame = (currentFrame + 1) % 3;  // Cycle through 0, 1, 2
+        currentFrame = (currentFrame + 1) % 3; // Cycle through 0,1,2
         sprite.setTexture(texture[currentFrame]);
         animationClock.restart();
     }
-
 }
+
 
 void Bird::Draw(sf::RenderWindow& window)
 {

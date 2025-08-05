@@ -13,8 +13,22 @@ void Pipes::Load()
     }
 
 }
-void Pipes::Update()
+
+bool Pipes::CheckCollision(const sf::FloatRect& birdBounds)
 {
+    for (auto& pipe : pipes)
+    {
+        if (birdBounds.intersects(pipe.topPipe.getGlobalBounds()) ||
+            birdBounds.intersects(pipe.bottomPipe.getGlobalBounds()))
+        {
+            return true; // Collision happened
+        }
+    }
+    return false;
+}
+
+void Pipes::Update()
+{ 
     //pipes
     if (pipeSpawnClock.getElapsedTime().asSeconds() >= pipeSpawnInterval) {
 
@@ -32,9 +46,8 @@ void Pipes::Update()
         float yOffset = safeYPositions[index];
 
         // --- Randomize gap size a little ---
-        float minGap = 150.f; // Minimum allowed gap
-        float maxGap = 200.f; // Maximum allowed gap
-        float randomGap = minGap + static_cast<float>(rand()) / RAND_MAX * (maxGap - minGap);
+     
+        
 
         Pipe newPipe;
 
@@ -45,7 +58,7 @@ void Pipes::Update()
         // Top pipe (flipped)
         newPipe.topPipe.setTexture(texture);
         newPipe.topPipe.setScale(1.f, -1.f);
-        newPipe.topPipe.setPosition(800.f, yOffset - randomGap);
+        newPipe.topPipe.setPosition(800.f, yOffset - verticalGap);
 
         // Add to vector
         pipes.push_back(newPipe);
@@ -63,7 +76,26 @@ void Pipes::Update()
     pipes.erase(std::remove_if(pipes.begin(), pipes.end(), [&](Pipe& p) {
         return p.bottomPipe.getPosition().x + texture.getSize().x < 0;
         }), pipes.end());
+
+    
 }
+
+void Pipes::CheckScore(const sf::FloatRect& birdBounds, Score& score)
+{
+    float birdLeft = birdBounds.left;
+
+    for (auto& pipe : pipes)
+    {
+        if (!pipe.passed &&
+            pipe.bottomPipe.getPosition().x + texture.getSize().x < birdLeft)
+        {
+            pipe.passed = true;      // mark as counted
+            score.AddPoint();        // increase PNG score
+        }
+    }
+}
+
+
 void Pipes::Draw(sf::RenderWindow& window)
 {
     for (const auto& pipe : pipes) {
