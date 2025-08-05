@@ -21,7 +21,7 @@ int main() {
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
-    sf::RenderWindow window(sf::VideoMode(500, 700), "Flappy Bird", sf::Style::Default, settings);
+    sf::RenderWindow window(sf::VideoMode(500, 700), "Flappy Bird", sf::Style::Titlebar | sf::Style::Close, settings);
 
     bool gameOver = false;
 
@@ -61,6 +61,23 @@ int main() {
     score.Load("Assets/Texture/Numbers"); // path to folder with 0.png ... 9.png
     score.Reset();
 
+    sf::Texture gameOverTexture;
+    if (!gameOverTexture.loadFromFile("Assets/Texture/gameover.png")) {
+        std::cout << "Failed to load gameover.png\n";
+    }
+
+    sf::Sprite gameOverSprite(gameOverTexture);
+    gameOverSprite.setPosition(110.f, 150.f);
+    gameOverSprite.setScale(1.5f, 1.5f);
+
+    sf::Texture restartTexture;
+    if (!restartTexture.loadFromFile("Assets/Texture/restart.png")) {
+        std::cout << "Failed to load restart.png\n";
+    }
+
+    sf::Sprite restartSprite(restartTexture);
+    restartSprite.setPosition(160.f, 275.f );
+    restartSprite.setScale(1.0f, 1.0f);
 
     //-----------------------------------LOAD-----------------------------
 
@@ -97,6 +114,23 @@ int main() {
                     bird.Flap();
                 }
             }
+
+            if (state == GameState::GameOver)
+            {
+                if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+                {
+                    if(restartSprite.getGlobalBounds().contains(static_cast<float>(event.mouseButton.x),static_cast<float>(event.mouseButton.y)))
+                    {
+                        // Reset the game
+                        bird.Initialize();
+                        pipes.Initialize();
+                        score.Reset(); // you'll need to add Reset() in Score class
+                        gameOver = false;
+                        state = GameState::StartMenu; // back to start screen
+                    }
+                }
+            }
+
         }
 
         if (state == GameState::Playing && !gameOver)
@@ -134,8 +168,10 @@ int main() {
         pipes.Draw(window);
 
         Ground.Draw(window);
-
-        bird.Draw(window);
+        if (state == GameState::Playing || state == GameState::GameOver)
+        {
+            bird.Draw(window);
+        }
 
         if (state == GameState::StartMenu)
         {
@@ -146,6 +182,19 @@ int main() {
         {
             score.Draw(window);
         }
+
+        if (state == GameState::GameOver)
+        {
+            window.draw(gameOverSprite);
+
+            // Draw final score
+            score.Draw(window);
+
+            // Draw restart button
+            window.draw(restartSprite);
+        }
+
+
 
         window.display();
 

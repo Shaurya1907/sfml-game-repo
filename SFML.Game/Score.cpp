@@ -1,6 +1,28 @@
 #include "Score.h"
 #include <iostream>
 
+
+void Score::Load(const std::string& folderPath)
+{
+    digitTextures.clear();
+
+    for (int i = 0; i <= 9; i++)
+    {
+        sf::Texture tex;
+        std::string filePath = folderPath + "/" + std::to_string(i) + ".png";
+
+        if (!tex.loadFromFile(filePath))
+        {
+            std::cout << "Failed to load number: " << filePath << std::endl;
+            continue;
+        }
+
+        digitTextures.push_back(tex);
+    }
+
+    UpdateSprites(); // initialize sprites for score=0
+}
+
 void Score::UpdateSprites()
 {
     digitSprites.clear();
@@ -19,25 +41,6 @@ void Score::UpdateSprites()
         xOffset += sprite.getGlobalBounds().width + spacing;
         digitSprites.push_back(sprite);
     }
-}
-
-void Score::Load(const std::string& folderPath)
-{
-    digitTextures.clear();
-
-    for (int i = 0; i <= 9; i++)
-    {
-        sf::Texture tex;
-        std::string filePath = folderPath + "/" + std::to_string(i) + ".png";
-        if (!tex.loadFromFile(filePath))
-        {
-            std::cout << "Failed to load number: " << filePath << std::endl;
-            continue;
-        }
-        digitTextures.push_back(tex);
-    }
-
-    UpdateSprites(); // initialize sprites for score=0
 }
 
 void Score::Draw(sf::RenderWindow& window)

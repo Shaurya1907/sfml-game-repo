@@ -3,8 +3,10 @@
 
 void Pipes::Initialize()
 {
-
+    pipes.clear();            // remove all pipes
+    pipeSpawnClock.restart(); // reset spawn timer
 }
+
 void Pipes::Load()
 {
     if (!texture.loadFromFile("Assets/Texture/pipe-green.png")) {

@@ -8,7 +8,7 @@ private:
 	sf::Sprite sprite1;
 	sf::Sprite sprite2;
 	
-	float scrollSpeed = 0.06f;
+	float scrollSpeed = 0.0675f;
 
 public:
 	void Initialize();

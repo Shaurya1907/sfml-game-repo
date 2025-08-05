@@ -3,6 +3,20 @@
 
 void Bird::Initialize()
 {
+    // Reset position to starting point
+    sprite.setPosition(225.f, 275.f);
+
+    // Reset vertical and horizontal velocity
+    velocityY = 0.f;
+    velocityX = 0.f;
+
+    // Reset rotation
+    birdRotation = 0.f;
+    targetRotation = 0.f;
+    sprite.setRotation(0.f);
+
+    // Allow flapping again
+    justFlapped = false;
 
 }
 

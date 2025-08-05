@@ -9,8 +9,7 @@ private:
 	sf::Sprite sprite1;
 	sf::Sprite sprite2;
 
-	float scrollSpeed = 0.06f;
-
+	float scrollSpeed = 0.0675f;
 public:
 	float GetTopY() const {
 		return sprite1.getPosition().y; // top edge of the ground
