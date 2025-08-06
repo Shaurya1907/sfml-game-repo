@@ -9,8 +9,8 @@ private:
 
     // Physics
     float velocityY = 0.0f;
-    float gravity = 0.00055f;
-    float flapStrength = -0.275f;
+    float gravity = 0.0006f;
+    float flapStrength = -0.3f;
     float velocityX = 0.00f;
 
     int currentFrame = 0;
