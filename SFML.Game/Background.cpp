@@ -25,11 +25,11 @@ void Background::Load()
 
 }
 
-void Background::Update()
+void Background::Update(float deltaTime)
 {
     // Scroll background (after bird moved)
-    sprite1.move(-scrollSpeed, 0.f);
-    sprite2.move(-scrollSpeed, 0.f);
+    sprite1.move(-backgroundSpeed * deltaTime, 0.f);
+    sprite2.move(-backgroundSpeed * deltaTime, 0.f);
 
     // When background1 moves completely off the screen
     if (sprite1.getPosition().x + texture.getSize().x <= 0)

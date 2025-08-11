@@ -8,11 +8,11 @@ private:
 	sf::Sprite sprite1;
 	sf::Sprite sprite2;
 	
-	float scrollSpeed = 0.0675f;
+	const float backgroundSpeed = 50.f;
 
 public:
 	void Initialize();
 	void Load();
-	void Update();
+	void Update(float deltaTime);
 	void Draw(sf::RenderWindow& window);
 };

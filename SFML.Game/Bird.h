@@ -9,8 +9,8 @@ private:
 
     // Physics
     float velocityY = 0.0f;
-    float gravity = 0.0006f;
-    float flapStrength = -0.3f;
+    float gravity = 2000.f;
+    float flapStrength = -550.0f;
     float velocityX = 0.00f;
 
     int currentFrame = 0;
@@ -23,7 +23,7 @@ private:
     bool justFlapped = false;
     float birdRotation = 0.f;       // Current rotation
     float targetRotation = 0.f;     // Where we want to rotate to
-    float rotationSpeed = 0.001f;   //speed of rotation
+    float rotationSpeed = 2.5f;   //speed of rotation
 
 public:
 
@@ -41,6 +41,6 @@ public:
     void Flap();
 	void Initialize();
 	void Load();
-	void Update();
+	void Update(float deltaTime);
 	void Draw(sf::RenderWindow& window);
 };

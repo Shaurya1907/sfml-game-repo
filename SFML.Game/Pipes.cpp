@@ -29,7 +29,7 @@ bool Pipes::CheckCollision(const sf::FloatRect& birdBounds)
     return false;
 }
 
-void Pipes::Update()
+void Pipes::Update(float deltaTime)
 { 
     //pipes
     if (pipeSpawnClock.getElapsedTime().asSeconds() >= pipeSpawnInterval) {
@@ -70,8 +70,8 @@ void Pipes::Update()
     }
 
     for (Pipe& pipe : pipes) {
-        pipe.topPipe.move(-pipeSpeed, 0.f);
-        pipe.bottomPipe.move(-pipeSpeed, 0.f);
+        pipe.topPipe.move(-pipeSpeed * deltaTime, 0.f);
+        pipe.bottomPipe.move(-pipeSpeed * deltaTime, 0.f);
     }
 
     // Remove pipes that have moved off-screen
