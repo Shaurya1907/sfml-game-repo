@@ -15,13 +15,29 @@ enum class GameState
     GameOver
 };
 
+void updateRestartButtonPosition(const sf::View& view, sf::Sprite& button)
+{
+    sf::Vector2f center = view.getCenter();
+    button.setPosition(center.x, center.y); // dead center in world coords
+   
+}
+
 int main() {
 
     //-------------------------------INITIALIZE-------------------------
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
-    sf::RenderWindow window(sf::VideoMode(500, 700), "Flappy Bird", sf::Style::Titlebar | sf::Style::Close, settings);
+    sf::RenderWindow window(sf::VideoMode(500, 700), "Flappy Bird", sf::Style::Default | sf::Style::Close, settings);
+    window.setVerticalSyncEnabled(60);
+
+    sf::View view(sf::FloatRect(0.f, 0.f, 500.f, 700.f));
+    window.setView(view);
+
+    sf::Texture restartTexture;
+    if (!restartTexture.loadFromFile("Assets/Texture/restart.png")) {
+        std::cout << "Failed to load restart.png\n";
+    }
 
     bool gameOver = false;
 
@@ -38,11 +54,9 @@ int main() {
     Ground.Load();
 
     Bird bird;
-    bird.Initialize();
     bird.Load();
 
     Pipes pipes;
-    pipes.Initialize();
     pipes.Load();
  
     GameState state = GameState::StartMenu;
@@ -59,7 +73,6 @@ int main() {
     
     Score score;
     score.Load("Assets/Texture/Numbers"); // path to folder with 0.png ... 9.png
-    score.Reset();
 
     sf::Texture gameOverTexture;
     if (!gameOverTexture.loadFromFile("Assets/Texture/gameover.png")) {
@@ -70,14 +83,18 @@ int main() {
     gameOverSprite.setPosition(110.f, 150.f);
     gameOverSprite.setScale(1.5f, 1.5f);
 
-    sf::Texture restartTexture;
-    if (!restartTexture.loadFromFile("Assets/Texture/restart.png")) {
-        std::cout << "Failed to load restart.png\n";
-    }
-
     sf::Sprite restartSprite(restartTexture);
-    restartSprite.setPosition(160.f, 275.f );
     restartSprite.setScale(1.0f, 1.0f);
+
+    // Set origin to center so position works correctly
+    restartSprite.setOrigin(
+        restartSprite.getLocalBounds().width / 2.f,
+        restartSprite.getLocalBounds().height / 2.f
+    );
+
+    restartSprite.setPosition(250.f, 350.f);
+
+    sf::Clock deltaClock;
 
     //-----------------------------------LOAD-----------------------------
 
@@ -86,11 +103,45 @@ int main() {
 
      //--------------------------------UPDATE------------------------------
 
+        float deltaTime = deltaClock.restart().asSeconds(); // Time in seconds
+
         sf::Event event;
         while (window.pollEvent(event)) {
 
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if (event.type == sf::Event::Resized)
+            {
+                // Keep the world size fixed (500x700) so aspect ratio is preserved
+                view.setSize(500.f, 700.f);
+                view.setCenter(250.f, 350.f); // Center of the 500x700 world
+
+
+                // Calculate the new aspect ratio
+                float windowRatio = static_cast<float>(event.size.width) / static_cast<float>(event.size.height);
+                float viewRatio = 500.f / 700.f; // base aspect ratio
+
+                sf::FloatRect viewport(0.f, 0.f, 1.f, 1.f);
+
+                if (windowRatio > viewRatio) // window too wide
+                {
+                    float width = viewRatio / windowRatio;
+                    viewport.left = (1.f - width) / 2.f;
+                    viewport.width = width;
+                }
+                else if (windowRatio < viewRatio) // window too tall
+                {
+                    float height = windowRatio / viewRatio;
+                    viewport.top = (1.f - height) / 2.f;
+                    viewport.height = height;
+                }
+
+                view.setViewport(viewport); // add black bars if needed
+                window.setView(view);
+
+                updateRestartButtonPosition(view, restartSprite);
+            }
 
             // Start menu input
             if (state == GameState::StartMenu)
@@ -115,30 +166,29 @@ int main() {
                 }
             }
 
-            if (state == GameState::GameOver)
-            {
-                if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
-                {
-                    if(restartSprite.getGlobalBounds().contains(static_cast<float>(event.mouseButton.x),static_cast<float>(event.mouseButton.y)))
-                    {
-                        // Reset the game
+            // Game over input
+            if (state == GameState::GameOver) {
+                if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                    // Convert mouse position to view coordinates
+                    sf::Vector2f mouseViewPos = window.mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y }, view);
+
+                    if (restartSprite.getGlobalBounds().contains(mouseViewPos)) {
                         bird.Initialize();
                         pipes.Initialize();
-                        score.Reset(); // you'll need to add Reset() in Score class
+                        score.Reset();
                         gameOver = false;
-                        state = GameState::StartMenu; // back to start screen
+                        state = GameState::StartMenu;
                     }
                 }
             }
-
         }
 
         if (state == GameState::Playing && !gameOver)
         {
-            bird.Update();
-            background.Update();
-            Ground.Update();
-            pipes.Update();
+            bird.Update(deltaTime);
+            background.Update(deltaTime);
+            Ground.Update(deltaTime);
+            pipes.Update(deltaTime);
 
             void CheckScore(const sf::FloatRect & birdBounds, Score & score);
 
@@ -155,7 +205,7 @@ int main() {
             }
        
         }
-
+   
      //--------------------------------UPDATE------------------------------
 
 
@@ -193,8 +243,6 @@ int main() {
             // Draw restart button
             window.draw(restartSprite);
         }
-
-
 
         window.display();
 

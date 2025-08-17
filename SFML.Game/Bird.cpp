@@ -41,7 +41,7 @@ void Bird::Flap()
 }
 
 // Inside game loop
-void Bird::Update()
+void Bird::Update(float deltaTime)
 {
     // If waiting period is over, tilt downward
     if (BirdAngleRotationClock.getElapsedTime().asSeconds() >= WaitBeforeRotation)
@@ -50,12 +50,12 @@ void Bird::Update()
     }
 
     // Smoothly rotate bird towards target rotation
-    birdRotation += (targetRotation - birdRotation) * rotationSpeed;
+    birdRotation += (targetRotation - birdRotation) * rotationSpeed * deltaTime;
     sprite.setRotation(birdRotation);
 
     // Apply gravity
-    velocityY += gravity;
-    sprite.move(velocityX, velocityY);
+    velocityY += gravity * deltaTime;
+    sprite.move(velocityX, velocityY * deltaTime);
 
   
     // Ceiling collision

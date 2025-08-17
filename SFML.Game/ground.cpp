@@ -25,10 +25,10 @@ void ground::Load()
 
 }
 
-void ground::Update()
+void ground::Update(float deltaTime)
 {
-   sprite1.move(-scrollSpeed, 0.f);
-    sprite2.move(-scrollSpeed, 0.f);
+   sprite1.move(-groundSpeed * deltaTime, 0.f);
+    sprite2.move(-groundSpeed * deltaTime, 0.f);
 
     if (sprite1.getPosition().x + texture.getSize().x <= 0)
     {
